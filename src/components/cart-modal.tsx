@@ -1,6 +1,6 @@
 import { X, Minus, Plus } from "lucide-react";
 import { useCart } from "@/hooks/use-cart";
-import type { MenuItem } from "@shared/schema";
+import type { MenuItem } from "@/hooks/use-cart";
 
 interface CartModalProps {
   isOpen: boolean;
@@ -46,20 +46,20 @@ export default function CartModal({ isOpen, onClose, onProceedToPayment, cartIte
                 <div className="flex items-center space-x-3">
                   <div className="flex items-center space-x-2">
                     <button 
-                      onClick={() => updateItemQuantity(item.id, Math.max(0, quantity - 1))}
+                      onClick={() => updateItemQuantity(item._id, Math.max(0, quantity - 1))}
                       className="w-6 h-6 rounded-full bg-gray-200 flex items-center justify-center text-gray-600"
                     >
                       <Minus className="w-3 h-3" />
                     </button>
                     <span className="text-sm font-medium">{quantity}</span>
                     <button 
-                      onClick={() => updateItemQuantity(item.id, quantity + 1)}
+                      onClick={() => updateItemQuantity(item._id, quantity + 1)}
                       className="w-6 h-6 rounded-full bg-orange-primary flex items-center justify-center text-white"
                     >
                       <Plus className="w-3 h-3" />
                     </button>
                   </div>
-                  <span className="font-bold text-orange-primary">₹{(parseFloat(item.price) * quantity).toFixed(2)}</span>
+                  <span className="font-bold text-orange-primary">₹{(item.price * quantity).toFixed(2)}</span>
                 </div>
               </div>
             ))}

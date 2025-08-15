@@ -1,7 +1,7 @@
-import { createContext, useContext, useState, useEffect, ReactNode } from "react";
+import { createContext, useContext, useState, useEffect, ReactNode, useCallback, useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
 
-interface MenuItem {
+export interface MenuItem {
   _id: string;
   name: string;
   description: string;
@@ -13,7 +13,7 @@ interface MenuItem {
 }
 
 interface CartItem {
-  id: string;
+  id: string; // Corresponds to MenuItem._id
   quantity: number;
 }
 
@@ -52,11 +52,11 @@ export function CartProvider({ children }: { children: ReactNode }) {
     localStorage.setItem("tastyeats-cart", JSON.stringify(cart));
   }, [cart]);
 
-  const getItemQuantity = (id: string) => {
+  const getItemQuantity = useCallback((id: string) => {
     return cart.find(item => item.id === id)?.quantity || 0;
-  };
+  }, [cart]);
 
-  const updateItemQuantity = (id: string, quantity: number) => {
+  const updateItemQuantity = useCallback((id: string, quantity: number) => {
     setCart(prev => {
       if (quantity <= 0) {
         return prev.filter(item => item.id !== id);
@@ -71,34 +71,42 @@ export function CartProvider({ children }: { children: ReactNode }) {
         return [...prev, { id, quantity }];
       }
     });
-  };
+  }, []);
 
-  const clearCart = () => {
+  const clearCart = useCallback(() => {
     setCart([]);
-  };
+  }, []);
 
-  // Calculate cart items with menu data
-  const cartItems = cart
-    .map(cartItem => {
-      const menuItem = (menuItems || []).find((item: MenuItem) => item.id === cartItem.id);
-      return menuItem ? { item: menuItem, quantity: cartItem.quantity } : null;
-    })
-    .filter(Boolean) as Array<{ item: MenuItem; quantity: number }>;
+  const cartItems = useMemo(() => {
+    return cart
+      .map(cartItem => {
+        const menuItem = (menuItems || []).find((item: MenuItem) => item._id === cartItem.id);
+        return menuItem ? { item: menuItem, quantity: cartItem.quantity } : null;
+      })
+      .filter(Boolean) as Array<{ item: MenuItem; quantity: number }>;
+  }, [cart, menuItems]);
 
-  const totalItems = cart.reduce((sum, item) => sum + item.quantity, 0);
-  const totalAmount = cartItems.reduce((sum, { item, quantity }) => {
-    return sum + (item.price * quantity);
-  }, 0);
+  const totalItems = useMemo(() => {
+    return cart.reduce((sum, item) => sum + item.quantity, 0);
+  }, [cart]);
+
+  const totalAmount = useMemo(() => {
+    return cartItems.reduce((sum, { item, quantity }) => {
+      return sum + (item.price * quantity);
+    }, 0);
+  }, [cartItems]);
+
+  const value = useMemo(() => ({
+    cartItems,
+    totalItems,
+    totalAmount,
+    getItemQuantity,
+    updateItemQuantity,
+    clearCart
+  }), [cartItems, totalItems, totalAmount, getItemQuantity, updateItemQuantity, clearCart]);
 
   return (
-    <CartContext.Provider value={{
-      cartItems,
-      totalItems,
-      totalAmount,
-      getItemQuantity,
-      updateItemQuantity,
-      clearCart
-    }}>
+    <CartContext.Provider value={value}>
       {children}
     </CartContext.Provider>
   );

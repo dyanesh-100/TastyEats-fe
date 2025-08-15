@@ -155,7 +155,7 @@ export default function AdminModal({ isOpen, onClose }: AdminModalProps) {
       <div className="absolute bottom-0 left-0 right-0 bg-white rounded-t-2xl max-h-[90vh] overflow-y-auto">
         <div className="sticky top-0 bg-white px-4 py-4 border-b border-gray-100">
           <div className="flex items-center justify-between">
-            <h2 className="text-lg font-bold text-gray-secondary">Admin Panel</h2>
+            <h2 className="text-lg font-bold text-gray-secondary">Menu Manager</h2>
             <button 
               onClick={onClose}
               className="p-2 text-gray-600 hover:text-orange-primary transition-colors"

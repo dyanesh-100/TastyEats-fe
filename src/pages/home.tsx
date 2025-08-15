@@ -8,8 +8,11 @@ import AdminModal from "@/components/admin-modal";
 import SuccessModal from "@/components/success-modal";
 import { useCart } from "@/hooks/use-cart";
 import { useState } from "react";
+import { useRole } from "@/context/RoleContext";
+import OrdersPage from "./orders-page";
 
 export default function Home() {
+  const { role } = useRole();
   const { cartItems, totalItems, totalAmount } = useCart();
   const [selectedCategory, setSelectedCategory] = useState("all");
   const [isCartOpen, setIsCartOpen] = useState(false);
@@ -27,9 +30,21 @@ export default function Home() {
     setIsSuccessOpen(true);
   };
 
+  if (role === 'chef') {
+    return (
+      <div className="max-w-md mx-auto bg-white min-h-screen relative">
+        <Header onCartClick={() => {}} onAdminClick={() => setIsAdminOpen(true)} />
+        <main className="flex-1 container mx-auto py-8">
+          <OrdersPage />
+        </main>
+        <AdminModal isOpen={isAdminOpen} onClose={() => setIsAdminOpen(false)} />
+      </div>
+    );
+  }
+
   return (
     <div className="max-w-md mx-auto bg-white min-h-screen relative">
-      <Header onCartClick={() => setIsCartOpen(true)} onAdminClick={() => setIsAdminOpen(true)} />
+      <Header onCartClick={() => setIsCartOpen(true)} onAdminClick={() => {}} />
       
       <CategoryTabs 
         selectedCategory={selectedCategory} 
@@ -57,11 +72,6 @@ export default function Home() {
         onClose={() => setIsPaymentOpen(false)}
         onPaymentComplete={handlePaymentComplete}
         totalAmount={totalAmount}
-      />
-
-      <AdminModal 
-        isOpen={isAdminOpen}
-        onClose={() => setIsAdminOpen(false)}
       />
 
       <SuccessModal 

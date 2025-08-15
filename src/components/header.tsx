@@ -1,5 +1,6 @@
 import { Utensils, Settings, ShoppingCart } from "lucide-react";
 import { useCart } from "@/hooks/use-cart";
+import { useRole } from "@/context/RoleContext";
 
 interface HeaderProps {
   onCartClick: () => void;
@@ -8,6 +9,7 @@ interface HeaderProps {
 
 export default function Header({ onCartClick, onAdminClick }: HeaderProps) {
   const { totalItems } = useCart();
+  const { role } = useRole();
 
   return (
     <header className="bg-white sticky top-0 z-40 shadow-sm border-b border-gray-100">
@@ -22,23 +24,27 @@ export default function Header({ onCartClick, onAdminClick }: HeaderProps) {
           </div>
         </div>
         <div className="flex items-center space-x-3">
-          <button 
-            onClick={onAdminClick}
-            className="p-2 text-gray-600 hover:text-orange-primary transition-colors"
-          >
-            <Settings className="w-5 h-5" />
-          </button>
-          <button 
-            onClick={onCartClick}
-            className="relative p-2 text-gray-600 hover:text-orange-primary transition-colors"
-          >
-            <ShoppingCart className="w-5 h-5" />
-            {totalItems > 0 && (
-              <span className="absolute -top-1 -right-1 bg-orange-primary text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
-                {totalItems}
-              </span>
-            )}
-          </button>
+          {role === 'user' && (
+            <button 
+              onClick={onCartClick}
+              className="relative p-2 text-gray-600 hover:text-orange-primary transition-colors"
+            >
+              <ShoppingCart className="w-5 h-5" />
+              {totalItems > 0 && (
+                <span className="absolute -top-1 -right-1 bg-orange-primary text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
+                  {totalItems}
+                </span>
+              )}
+            </button>
+          )}
+          {role === 'chef' && (
+            <button 
+              onClick={onAdminClick}
+              className="p-2 text-gray-600 hover:text-orange-primary transition-colors"
+            >
+              <Settings className="w-5 h-5" />
+            </button>
+          )}
         </div>
       </div>
     </header>

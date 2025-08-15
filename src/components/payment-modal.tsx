@@ -33,7 +33,7 @@ export default function PaymentModal({ isOpen, onClose, onPaymentComplete, total
   const generatePaymentData = (method: PaymentMethod) => {
     const baseData = {
       pn: "TastyEats Downtown Kitchen",
-      am: (totalAmount + 40).toFixed(2), // Add delivery fee
+      am: (totalAmount + 40).toFixed(2), 
       cu: "INR",
       tn: `Food Order Payment - ${Date.now()}`
     };
@@ -42,17 +42,17 @@ export default function PaymentModal({ isOpen, onClose, onPaymentComplete, total
       case 'gpay':
         return {
           ...baseData,
-          pa: "merchant@okaxis", // Google Pay merchant UPI ID
+          pa: "merchant@okaxis", 
         };
       case 'phonepe':
         return {
           ...baseData,
-          pa: "merchant@ybl", // PhonePe merchant UPI ID
+          pa: "merchant@ybl", 
         };
       default:
         return {
           ...baseData,
-          pa: "merchant@paytm", // Generic UPI ID
+          pa: "merchant@paytm", 
         };
     }
   };
