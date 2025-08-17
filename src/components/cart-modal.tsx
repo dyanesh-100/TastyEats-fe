@@ -1,6 +1,11 @@
+import { useState } from 'react';
 import { X, Minus, Plus } from "lucide-react";
 import { useCart } from "@/hooks/use-cart";
 import type { MenuItem } from "@/hooks/use-cart";
+import Cookies from 'js-cookie';
+import CustomerModal from './CustomerModal';
+import api from '@/lib/api';
+
 
 interface CartModalProps {
   isOpen: boolean;
@@ -12,7 +17,30 @@ interface CartModalProps {
 
 export default function CartModal({ isOpen, onClose, onProceedToPayment, cartItems, totalAmount }: CartModalProps) {
   const { updateItemQuantity } = useCart();
+  const [showCustomerModal, setShowCustomerModal] = useState(false);
+  const [customerDetails, setCustomerDetails] = useState(null);
   
+  const handleProceed = async () => {
+    try {
+      const response = await api.get(`/customers/me`);
+
+      if (response.data.success && response.data.customer) {
+        setCustomerDetails(response.data.customer);
+      } else {
+        setCustomerDetails(null);
+      }
+
+      setShowCustomerModal(true);
+
+    } catch (err) {
+      console.error("Error fetching customer:", err);
+      setCustomerDetails(null);
+      setShowCustomerModal(true);
+    }
+  };
+
+
+
   if (!isOpen) return null;
 
   const subtotal = totalAmount;
@@ -35,7 +63,6 @@ export default function CartModal({ isOpen, onClose, onProceedToPayment, cartIte
         </div>
         
         <div className="px-4 py-4 space-y-4">
-          {/* Cart Items */}
           <div className="space-y-3">
             {cartItems.map(({ item, quantity }) => (
               <div key={item._id} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
@@ -65,7 +92,6 @@ export default function CartModal({ isOpen, onClose, onProceedToPayment, cartIte
             ))}
           </div>
 
-          {/* Order Summary */}
           <div className="border-t border-gray-200 pt-4 space-y-2">
             <div className="flex justify-between text-sm">
               <span className="text-gray-600">Subtotal</span>
@@ -81,14 +107,27 @@ export default function CartModal({ isOpen, onClose, onProceedToPayment, cartIte
             </div>
           </div>
 
-          {/* Proceed to Payment Button */}
           <button 
-            onClick={onProceedToPayment}
+            onClick={handleProceed}
             disabled={cartItems.length === 0}
             className="w-full bg-orange-primary text-white py-4 rounded-xl font-medium hover:bg-orange-hover transition-colors disabled:bg-gray-300"
           >
             Proceed to Payment
           </button>
+          
+          {showCustomerModal && (
+            <CustomerModal
+              initialData={customerDetails}
+              onClose={() => setShowCustomerModal(false)}
+              onSuccess={(data) => {
+                // ✅ Now this will not be undefined
+                Cookies.set("customerId", data.customerId, { expires: 365 });
+
+                setCustomerDetails(data); 
+                onProceedToPayment();
+              }}
+            />
+          )}
         </div>
       </div>
     </div>

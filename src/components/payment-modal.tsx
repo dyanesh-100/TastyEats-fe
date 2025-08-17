@@ -33,16 +33,6 @@ export default function PaymentModal({ isOpen, onClose, onPaymentComplete, total
     }
   });
 
-  // const generatePaymentData = () => {
-  //   return {
-  //     pn: "TastyEats Downtown Kitchen",
-  //     am: (totalAmount + 40).toFixed(2),
-  //     cu: "INR",
-  //     tn: `Food Order Payment - ${Date.now()}`,
-  //     pa: UPI_ID
-  //   };
-  // };
-
   const handlePaymentComplete = () => {
     const orderData = {
       items: JSON.stringify(cartItems.map(({ item, quantity }) => ({
